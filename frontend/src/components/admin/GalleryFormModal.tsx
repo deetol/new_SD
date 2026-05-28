@@ -117,7 +117,6 @@ export default function GalleryFormModal({ gallery, onClose, onSaved }: Props) {
                     fill
                     sizes="448px"
                     className="object-cover"
-                    unoptimized
                   />
                   <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
                     <span className="text-white text-sm font-medium bg-black/50 px-3 py-1.5 rounded-lg">

@@ -110,7 +110,6 @@ export default function AdminGuruPage() {
                           fill
                           sizes="40px"
                           className="object-cover"
-                          unoptimized
                         />
                       ) : (
                         <span className="material-symbols-outlined text-slate-400 absolute inset-0 flex items-center justify-center text-xl">

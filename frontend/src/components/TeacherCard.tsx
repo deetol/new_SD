@@ -22,7 +22,6 @@ export default function TeacherCard({ teacher }: TeacherCardProps) {
               fill
               sizes="120px"
               className="object-cover rounded-full"
-              unoptimized={!!teacher.foto_url} // skip optimasi untuk URL eksternal storage
             />
           </div>
         </div>

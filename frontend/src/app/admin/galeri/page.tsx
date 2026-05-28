@@ -102,7 +102,6 @@ export default function AdminGaleriPage() {
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className="object-cover"
-                    unoptimized
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">

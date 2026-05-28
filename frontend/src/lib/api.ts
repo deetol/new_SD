@@ -88,6 +88,79 @@ export interface Gallery {
   updated_at: string;
 }
 
+export interface Ppdb {
+  id: number;
+  judul: string;
+  tahun_ajaran: number;
+  deskripsi: string | null;
+  persyaratan: string | null;
+  alur_langkah: string[] | null;
+  jadwal_kegiatan: Record<string, string>[] | null;
+  tanggal_buka: string;
+  tanggal_tutup: string;
+  kuota: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PendaftarPpdb {
+  id: number;
+  ppdb_id: number;
+  ppdb?: Ppdb;
+  nomor_pendaftaran: string;
+  status: "menunggu" | "diterima" | "ditolak";
+  nama_lengkap: string;
+  jenis_kelamin: "L" | "P";
+  tempat_lahir: string;
+  tanggal_lahir: string;
+  nik: string | null;
+  agama: string | null;
+  alamat: string;
+  rt: string | null;
+  rw: string | null;
+  kelurahan: string | null;
+  kecamatan: string | null;
+  kabupaten: string | null;
+  provinsi: string | null;
+  kode_pos: string | null;
+  nama_ayah: string | null;
+  nama_ibu: string | null;
+  nama_wali: string | null;
+  no_hp: string;
+  email: string | null;
+  asal_tk: string | null;
+  catatan_admin: string | null;
+  submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProfilSekolah {
+  id: number;
+  nama_sekolah: string;
+  npsn: string | null;
+  alamat: string;
+  kelurahan: string | null;
+  kecamatan: string | null;
+  kabupaten: string | null;
+  provinsi: string | null;
+  kode_pos: string | null;
+  no_telepon: string | null;
+  email: string | null;
+  sejarah: string | null;
+  visi: string | null;
+  misi: string | null;
+  pengantar: string | null;
+  visi_misi_pengantar: string | null;
+  penghargaan: unknown[] | null;
+  timeline: unknown[] | null;
+  kepala_sekolah: string | null;
+  logo: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function getTeachers(params?: {

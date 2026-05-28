@@ -108,7 +108,7 @@ export default function TeacherFormModal({ teacher, onClose, onSaved }: Props) {
               onClick={() => fileRef.current?.click()}
             >
               {preview ? (
-                <Image src={preview} alt="preview" fill sizes="80px" className="object-cover" unoptimized />
+                <Image src={preview} alt="preview" fill sizes="80px" className="object-cover" />
               ) : (
                 <span className="material-symbols-outlined text-slate-400 absolute inset-0 flex items-center justify-center text-3xl">
                   add_photo_alternate
