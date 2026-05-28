@@ -1,115 +1,153 @@
-import Image from "next/image";
 import Link from "next/link";
-import { GalleryItem } from "@/data/galeri";
+import type { Gallery } from "@/lib/api";
 
-export default function GaleriDetailContent({ item }: { item: GalleryItem }) {
+interface Props {
+  gallery: Gallery;
+  related: Gallery[];
+}
+
+export default function GaleriDetailContent({ gallery, related }: Props) {
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString("id-ID", {
+      day: "numeric", month: "long", year: "numeric",
+    });
+
+  const fotoTambahan = gallery.foto_tambahan_urls ?? [];
+
   return (
-    <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
-      {/* Back Button */}
+    <article className="w-full max-w-[960px]">
+
+      {/* ── Back ── */}
       <div className="mb-6">
-        <Link
-          href="/galeri"
-          className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium"
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
+        <Link href="/galeri"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
           Kembali ke Galeri
         </Link>
       </div>
 
-      {/* Hero Section */}
-      <div className="@container">
-        <div className="w-full relative overflow-hidden rounded-xl h-[300px] md:h-[480px] bg-slate-200 dark:bg-slate-800">
-          <img
-            alt={item.title}
-            className="w-full h-full object-cover"
-            src={item.image}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6 md:p-10">
-            {item.highlighted && (
-              <span className="inline-block bg-primary text-slate-900 text-xs font-bold px-3 py-1 rounded-full w-fit mb-3 uppercase">
-                Acara Unggulan
-              </span>
-            )}
-            <h1 className="text-white text-3xl md:text-5xl font-black leading-tight tracking-tight text-balance">
-              {item.title}
-            </h1>
-          </div>
-        </div>
-      </div>
-
-      {/* Metadata Row */}
-      <div className="flex flex-wrap gap-4 py-6 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          <span className="material-symbols-outlined text-primary">
-            calendar_month
-          </span>
-          <span className="text-sm font-medium">{item.date}</span>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
-          <span className="material-symbols-outlined text-primary">
-            category
-          </span>
-          <span className="text-sm font-medium">{item.category}</span>
-        </div>
-        {item.location && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
-            <span className="material-symbols-outlined text-primary">
-              location_on
+      {/* ── Two-column header (seperti referensi) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-8 mb-8">
+        {/* Kiri: meta + judul */}
+        <div>
+          <div className="flex flex-wrap items-center gap-3 mb-3 text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-medium">
+              {fmt(gallery.tanggal_kegiatan)}
             </span>
-            <span className="text-sm font-medium">{item.location}</span>
+            <span>·</span>
+            <span className="inline-block font-bold uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-full">
+              {gallery.kategori}
+            </span>
           </div>
-        )}
-      </div>
-
-      {/* Detailed Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 py-8">
-        <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-2xl font-bold">Tentang Kegiatan</h2>
-          {item.content?.map((paragraph, index) => (
-            <p
-              key={index}
-              className="text-slate-600 dark:text-slate-400 leading-relaxed text-balance"
-            >
-              {paragraph}
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">
+            {gallery.judul}
+          </h1>
+          {gallery.deskripsi && (
+            <p className="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed text-[15px]">
+              {gallery.deskripsi}
             </p>
-          ))}
+          )}
         </div>
 
-        {/* Mini Gallery / Side Images */}
-        {item.subImages && item.subImages.length > 0 && (
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold">Sorotan Kegiatan</h3>
-            <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-              {item.subImages.map((img, idx) => (
-                <div
-                  key={idx}
-                  className="relative aspect-video rounded-lg overflow-hidden bg-slate-200"
-                >
-                  <img
-                    alt={img.alt}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    src={img.url}
-                  />
-                </div>
+        {/* Kanan: share + info singkat */}
+        <div className="flex flex-col gap-4">
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Bagikan</p>
+            <div className="flex gap-2">
+              {["facebook", "twitter", "whatsapp", "link"].map((s) => (
+                <button key={s}
+                  className="size-9 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary transition-colors"
+                  title={s}>
+                  <span className="material-symbols-outlined text-[16px]">
+                    {s === "link" ? "link" : s === "whatsapp" ? "chat" : "share"}
+                  </span>
+                </button>
               ))}
             </div>
-            <button className="w-full py-3 bg-primary/10 hover:bg-primary/20 text-slate-900 dark:text-slate-100 font-bold rounded-lg border border-primary/30 transition-all flex items-center justify-center gap-2 mt-4">
-              <span className="material-symbols-outlined text-sm">
-                grid_view
-              </span>
-              Lihat Semua Foto
-            </button>
           </div>
-        )}
+
+          {/* Info tambahan */}
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Informasi</p>
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <span className="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
+              {fmt(gallery.tanggal_kegiatan)}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <span className="material-symbols-outlined text-[16px] text-primary">category</span>
+              {gallery.kategori}
+            </div>
+            {fotoTambahan.length > 0 && (
+              <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                <span className="material-symbols-outlined text-[16px] text-primary">photo_library</span>
+                {fotoTambahan.length + 1} foto
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Bottom Action */}
-      <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex justify-center">
-        <button className="bg-primary hover:bg-primary/90 text-background-dark font-bold px-8 py-3 rounded-lg flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
-          <span className="material-symbols-outlined">share</span>
-          Bagikan Kegiatan Ini
-        </button>
+      {/* ── Foto Utama (Hero) ── */}
+      <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-800 mb-6 shadow-xl">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={gallery.thumbnail_url ?? ""}
+          alt={gallery.judul}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
       </div>
-    </div>
+
+      {/* ── Grid Foto Tambahan ── */}
+      {fotoTambahan.length > 0 && (
+        <div className="mb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {fotoTambahan.map((url, idx) => (
+              <div key={idx}
+                className="relative aspect-square rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-800 group cursor-pointer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={`${gallery.judul} foto ${idx + 2}`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Kegiatan Terkait ── */}
+      {related.length > 0 && (
+        <section className="mt-12 pt-10 border-t border-slate-200 dark:border-slate-800">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+            Kegiatan Terkait
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {related.map((r) => (
+              <Link key={r.id} href={`/galeri/${r.id}`}
+                className="group flex flex-col rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:border-primary/40 hover:shadow-md transition-all bg-white dark:bg-slate-900">
+                <div className="aspect-video overflow-hidden bg-slate-100 dark:bg-slate-800">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={r.thumbnail_url ?? ""} alt={r.judul}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                </div>
+                <div className="p-4">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{r.kategori}</span>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white mt-1 line-clamp-2 group-hover:text-primary transition-colors">
+                    {r.judul}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {new Date(r.tanggal_kegiatan).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+    </article>
   );
 }

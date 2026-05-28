@@ -80,8 +80,11 @@ export interface Gallery {
   id: number;
   judul: string;
   slug: string;
+  kategori: "Ekstrakurikuler" | "Galeri Umum" | "Perayaan" | "Penghargaan";
   thumbnail: string;
   thumbnail_url: string | null;
+  foto_tambahan: string[] | null;       // path relatif
+  foto_tambahan_urls: string[];         // URL publik (dari accessor)
   deskripsi: string | null;
   tanggal_kegiatan: string;
   created_at: string;

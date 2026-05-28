@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-background-dark/90 via-background-dark/60 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-500/90 via-blue-500/50 to-transparent z-10"></div>
         <img
           alt="SD Negeri 5 Exterior"
           className="w-full h-full object-cover object-top"
