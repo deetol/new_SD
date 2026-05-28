@@ -18,8 +18,8 @@ const STATUS_OPTIONS = [
 
 function Row({ label, value }: { label: string; value?: string | null }) {
   return (
-    <div className="flex gap-2 py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0">
-      <span className="w-36 shrink-0 text-xs text-slate-400 dark:text-slate-500">{label}</span>
+    <div className="flex flex-col sm:flex-row py-2 sm:py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0">
+      <span className="w-full sm:w-36 shrink-0 text-xs text-slate-400 dark:text-slate-500 mb-0.5 sm:mb-0">{label}</span>
       <span className="text-sm text-slate-800 dark:text-slate-200 break-words">{value || "-"}</span>
     </div>
   );

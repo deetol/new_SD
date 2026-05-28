@@ -36,10 +36,13 @@ export default function Footer() {
                 </span>
               </Link>
               <Link
-                href="#"
+                href="/admin"
                 className="size-10 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-background-dark transition-all"
+                title="Admin Panel"
               >
-                <span className="material-symbols-outlined text-xl">movie</span>
+                <span className="material-symbols-outlined text-xl">
+                  admin_panel_settings
+                </span>
               </Link>
             </div>
           </div>

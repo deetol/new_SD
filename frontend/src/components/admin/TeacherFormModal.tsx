@@ -141,7 +141,7 @@ export default function TeacherFormModal({ teacher, onClose, onSaved }: Props) {
               className={inputCls} placeholder="Budi Santoso, S.Pd." />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="NIP">
               <input value={nip} onChange={(e) => setNip(e.target.value)}
                 className={inputCls} placeholder="197508122005011002" />
@@ -152,7 +152,7 @@ export default function TeacherFormModal({ teacher, onClose, onSaved }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Jabatan *">
               <input required value={jabatan} onChange={(e) => setJabatan(e.target.value)}
                 className={inputCls} placeholder="Guru Kelas I" />
@@ -172,7 +172,7 @@ export default function TeacherFormModal({ teacher, onClose, onSaved }: Props) {
               className={inputCls} placeholder="Matematika, IPA" />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Urutan Tampil">
               <input type="number" min={0} value={urutan}
                 onChange={(e) => setUrutan(Number(e.target.value))} className={inputCls} />

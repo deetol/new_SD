@@ -3,7 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Wrapper untuk semua halaman admin.
@@ -18,6 +18,7 @@ export default function AdminShell({
 }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -39,17 +40,24 @@ export default function AdminShell({
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950">
-      <AdminSidebar />
+    <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950 overflow-x-hidden">
+      <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
-        {title && (
-          <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 py-4">
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-4 flex items-center gap-2 md:gap-4">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden flex items-center justify-center"
+            title="Menu"
+          >
+            <span className="material-symbols-outlined text-[24px]">menu</span>
+          </button>
+          {title && (
+            <h1 className="text-base md:text-lg font-bold text-slate-900 dark:text-white truncate">
               {title}
             </h1>
-          </header>
-        )}
-        <main className="flex-1 px-8 py-6">{children}</main>
+          )}
+        </header>
+        <main className="flex-1 px-4 md:px-8 py-6">{children}</main>
       </div>
     </div>
   );

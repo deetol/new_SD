@@ -20,10 +20,7 @@ class GalleryController extends Controller
     {
         $galleries = Gallery::orderByDesc('tanggal_kegiatan')->get();
 
-        return response()->json([
-            'message' => 'Data galeri berhasil diambil.',
-            'data'    => $galleries,
-        ]);
+        return response()->json($galleries);
     }
 
     /**

@@ -158,7 +158,7 @@ export default function AdminProfilPage() {
             <input required value={namaSekolah} onChange={(e) => setNamaSekolah(e.target.value)}
               className={inputCls} placeholder="SD Negeri 5 Selok Awar-Awar" />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="NPSN">
               <input value={npsn} onChange={(e) => setNpsn(e.target.value)}
                 className={inputCls} placeholder="12345678" />
@@ -168,7 +168,7 @@ export default function AdminProfilPage() {
                 className={inputCls} placeholder="Nama kepala sekolah" />
             </Field>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="No. Telepon">
               <input value={noTelepon} onChange={(e) => setNoTelepon(e.target.value)}
                 className={inputCls} placeholder="0341-xxxxxx" />
@@ -187,7 +187,7 @@ export default function AdminProfilPage() {
             <input required value={alamat} onChange={(e) => setAlamat(e.target.value)}
               className={inputCls} placeholder="Jl. Raya No. 1" />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Kelurahan / Desa">
               <input value={kelurahan} onChange={(e) => setKelurahan(e.target.value)}
                 className={inputCls} placeholder="Selok Awar-Awar" />

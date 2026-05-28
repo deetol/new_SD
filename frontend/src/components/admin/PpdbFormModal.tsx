@@ -100,7 +100,7 @@ export default function PpdbFormModal({ ppdb, onClose, onSaved }: Props) {
               className={inputCls} placeholder="PPDB Tahun Ajaran 2025/2026" />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Tahun Ajaran" required>
               <input required type="number" min={2000} max={2100}
                 value={tahunAjaran} onChange={(e) => setTahunAjaran(Number(e.target.value))}
@@ -113,7 +113,7 @@ export default function PpdbFormModal({ ppdb, onClose, onSaved }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Tanggal Buka" required>
               <input required type="date" value={tanggalBuka}
                 onChange={(e) => setTanggalBuka(e.target.value)} className={inputCls} />

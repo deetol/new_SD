@@ -73,7 +73,8 @@ export default function AdminGuruPage() {
 
       {/* Table */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[800px]">
           <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
             <tr>
               <th className="px-4 py-3 text-left">Foto</th>
@@ -156,6 +157,7 @@ export default function AdminGuruPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Form Modal */}
