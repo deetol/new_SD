@@ -4,9 +4,9 @@ import type { Gallery } from "@/lib/api";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 const stats = [
-  { value: "50+",    label: "Prestasi Internasional" },
-  { value: "100+",   label: "Prestasi Nasional" },
-  { value: "1.000+", label: "Prestasi Provinsi dan Regional" },
+  { value: "-",    label: "Prestasi Internasional" },
+  { value: "-",   label: "Prestasi Nasional" },
+  { value: "-", label: "Prestasi Provinsi dan Regional" },
 ];
 
 async function getFeaturedGalleries(): Promise<Gallery[]> {
@@ -99,7 +99,7 @@ export default async function Gallery() {
           {/* ── Kanan: stat prestasi ── */}
           <div className="bg-accent-gold rounded-2xl p-8 text-white flex flex-col gap-6 sticky top-24">
             <p className="text-xs font-bold uppercase tracking-widest text-white/70">
-              Prestasi Siswa M2KM
+              Prestasi Siswa SDN Selok Awar-Awar 05
             </p>
             {stats.map((s) => (
               <div key={s.label} className="border-b border-white/20 pb-5 last:border-0 last:pb-0">
