@@ -31,6 +31,43 @@ class PendaftarPpdbController extends Controller
     }
 
     /**
+     * GET /api/pendaftar-ppdb/cek?nomor=PPDB-2026-XXXXX
+     *
+     * Cek status pendaftaran berdasarkan nomor pendaftaran — publik.
+     * Hanya mengembalikan data yang aman ditampilkan ke publik.
+     */
+    public function cek(Request $request): JsonResponse
+    {
+        $request->validate([
+            'nomor' => 'required|string|max:50',
+        ]);
+
+        $pendaftar = PendaftarPpdb::with('ppdb')
+            ->where('nomor_pendaftaran', strtoupper(trim($request->nomor)))
+            ->first();
+
+        if (!$pendaftar) {
+            return response()->json([
+                'message' => 'Nomor pendaftaran tidak ditemukan.',
+            ], 404);
+        }
+
+        // Hanya kembalikan data yang aman — jangan expose data sensitif
+        return response()->json([
+            'nomor_pendaftaran' => $pendaftar->nomor_pendaftaran,
+            'nama_lengkap'      => $pendaftar->nama_lengkap,
+            'jenis_kelamin'     => $pendaftar->jenis_kelamin,
+            'status'            => $pendaftar->status,
+            'catatan_admin'     => $pendaftar->catatan_admin,
+            'submitted_at'      => $pendaftar->submitted_at,
+            'ppdb'              => $pendaftar->ppdb ? [
+                'judul'        => $pendaftar->ppdb->judul,
+                'tahun_ajaran' => $pendaftar->ppdb->tahun_ajaran,
+            ] : null,
+        ]);
+    }
+
+    /**
      * Daftarkan pendaftar baru.
      */
     public function store(Request $request): JsonResponse

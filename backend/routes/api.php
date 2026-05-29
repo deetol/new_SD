@@ -44,6 +44,9 @@ Route::get('galleries/{gallery}',   [GalleryController::class, 'show']);
 // Pendaftar PPDB — store boleh publik (form pendaftaran)
 Route::post('pendaftar-ppdb', [PendaftarPpdbController::class, 'store']);
 
+// Cek status pendaftaran via nomor pendaftaran — publik
+Route::get('pendaftar-ppdb/cek', [PendaftarPpdbController::class, 'cek']);
+
 /*
 |--------------------------------------------------------------------------
 | Protected Routes — butuh Bearer token (admin only)

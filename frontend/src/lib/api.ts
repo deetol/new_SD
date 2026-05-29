@@ -97,8 +97,8 @@ export interface Ppdb {
   tahun_ajaran: number;
   deskripsi: string | null;
   persyaratan: string | null;
-  alur_langkah: string[] | null;
-  jadwal_kegiatan: Record<string, string>[] | null;
+  alur_langkah: { judul: string; deskripsi: string }[] | null;
+  jadwal_kegiatan: { no: number; kegiatan: string; tanggal: string; jam: string; tempat: string }[] | null;
   tanggal_buka: string;
   tanggal_tutup: string;
   kuota: number | null;

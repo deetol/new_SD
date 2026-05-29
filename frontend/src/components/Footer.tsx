@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -20,16 +19,22 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               <Link
-                href="#"
-                className="size-10 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-background-dark transition-all"
+                href="https://www.facebook.com/sedan.karima"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="size-10 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-[#1877F2] transition-all"
+                title="Facebook SD Negeri Selok Awar-Awar 05"
               >
-                <span className="material-symbols-outlined text-xl">
-                  social_leaderboard
-                </span>
+                <svg className="size-5 fill-white" viewBox="0 0 24 24">
+                  <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+                </svg>
               </Link>
               <Link
-                href="https://maps.app.goo.gl/C8nKwD6igGcT4Wjn7"
+                href="https://maps.app.goo.gl/6N9XdrZXTVayDyz48"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="size-10 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-background-dark transition-all"
+                title="Lokasi di Google Maps"
               >
                 <span className="material-symbols-outlined text-xl">
                   share_location
@@ -83,13 +88,22 @@ export default function Footer() {
                 <span className="material-symbols-outlined text-primary">
                   call
                 </span>
-                (021) 1234 5678
+                <a
+                  href="https://wa.me/6282139817999?text=Halo%20Admin%20Sekolah"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  Hubungi Kami
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">
                   mail
                 </span>
-                info@sdn5sejahtera.sch.id
+                <a href="mailto:sdnselok05@gmail.com">
+                  sdn1@example.com
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">

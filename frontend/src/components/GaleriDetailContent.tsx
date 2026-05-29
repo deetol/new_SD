@@ -1,12 +1,14 @@
 import Link from "next/link";
 import type { Gallery } from "@/lib/api";
+import ShareButtons from "@/components/ShareButtons";
 
 interface Props {
   gallery: Gallery;
   related: Gallery[];
+  pageUrl: string;
 }
 
-export default function GaleriDetailContent({ gallery, related }: Props) {
+export default function GaleriDetailContent({ gallery, related, pageUrl }: Props) {
   const fmt = (d: string) =>
     new Date(d).toLocaleDateString("id-ID", {
       day: "numeric", month: "long", year: "numeric",
@@ -110,23 +112,7 @@ export default function GaleriDetailContent({ gallery, related }: Props) {
             <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
               Bagikan :
             </p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { icon: "facebook", color: "bg-[#1877F2]", label: "Facebook" },
-                { icon: "twitter",  color: "bg-[#1DA1F2]", label: "Twitter" },
-                { icon: "chat",     color: "bg-[#25D366]", label: "WhatsApp" },
-                { icon: "mail",     color: "bg-slate-500",  label: "Email" },
-                { icon: "link",     color: "bg-slate-400",  label: "Salin Link" },
-              ].map((s) => (
-                <button
-                  key={s.label}
-                  title={s.label}
-                  className={`size-9 rounded-lg ${s.color} flex items-center justify-center text-white hover:opacity-80 transition-opacity`}
-                >
-                  <span className="material-symbols-outlined text-[16px]">{s.icon}</span>
-                </button>
-              ))}
-            </div>
+            <ShareButtons url={pageUrl} judul={gallery.judul} />
           </div>
 
           {/* Informasi lainnya (related) */}

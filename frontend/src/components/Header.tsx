@@ -48,15 +48,15 @@ export default function Header() {
               Galeri
             </Link>
             <Link
-              href="#"
-              className="text-sm font-medium hover:text-primary transition-colors"
+              href="/ppdb"
+              className="text-sm font-medium hover:text-primary transition-colors hover:border-b-2 hover:border-accent-gold pb-1"
             >
               PPDB
             </Link>
           </nav>
           <div className="flex items-center gap-4">
             <button className="bg-primary text-background-dark px-6 py-2.5 rounded-lg font-bold text-sm hover:brightness-110 transition-all shadow-lg shadow-primary/20">
-              Daftar PPDB
+              <Link href="/ppdb#form-daftar">Daftar PPDB</Link>
             </button>
             <button className="md:hidden text-slate-900 dark:text-slate-100"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -71,7 +71,7 @@ export default function Header() {
             <Link href="/profil">Profil</Link>
             <Link href="/guru">Tenaga Pendidik</Link>
             <Link href="/galeri">Galeri</Link>
-            <Link href="#">PPDB</Link>
+            <Link href="/ppdb">PPDB</Link>
           </div>
         )}</div>
     </header>
