@@ -8,8 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 
+use App\Http\Traits\HandlesImageUpload;
+
 class PendaftarPpdbController extends Controller
 {
+    use HandlesImageUpload;
     /**
      * Tampilkan semua pendaftar (bisa filter by ppdb_id atau status).
      */
@@ -69,6 +72,13 @@ class PendaftarPpdbController extends Controller
 
     /**
      * Daftarkan pendaftar baru.
+     * Menerima multipart/form-data karena ada upload berkas.
+     *
+     * Berkas yang diterima:
+     *   foto                  — foto calon siswa (jpg/png, maks 2MB)
+     *   file_kk               — scan Kartu Keluarga (jpg/png/pdf, maks 5MB)
+     *   file_akta             — scan akta kelahiran (jpg/png/pdf, maks 5MB)
+     *   file_surat_pernyataan — surat pernyataan (jpg/png/pdf, maks 5MB)
      */
     public function store(Request $request): JsonResponse
     {
@@ -94,11 +104,21 @@ class PendaftarPpdbController extends Controller
             'no_hp'                 => 'required|string|max:255',
             'email'                 => 'nullable|email|max:255',
             'asal_tk'               => 'nullable|string|max:255',
-            'foto'                  => 'nullable|string|max:255',
-            'file_kk'               => 'nullable|string|max:255',
-            'file_akta'             => 'nullable|string|max:255',
-            'file_surat_pernyataan' => 'nullable|string|max:255',
+            // Berkas upload
+            'foto'                  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'file_kk'               => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'file_akta'             => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'file_surat_pernyataan' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
+
+        // Upload berkas ke storage/app/public/ppdb-berkas/
+        foreach (['foto', 'file_kk', 'file_akta', 'file_surat_pernyataan'] as $field) {
+            if ($request->hasFile($field)) {
+                $validated[$field] = $request->file($field)->store('ppdb-berkas', 'public');
+            } else {
+                unset($validated[$field]);
+            }
+        }
 
         // Generate nomor pendaftaran otomatis: PPDB-YYYY-XXXXX
         $ppdb = Ppdb::findOrFail($validated['ppdb_id']);

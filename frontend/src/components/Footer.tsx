@@ -99,10 +99,10 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">
-                  mail
+                  email
                 </span>
                 <a href="mailto:sdnselok05@gmail.com">
-                  sdn1@example.com
+                  sdnselok05@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-3">

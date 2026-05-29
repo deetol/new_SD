@@ -135,6 +135,16 @@ export interface PendaftarPpdb {
   asal_tk: string | null;
   catatan_admin: string | null;
   submitted_at: string | null;
+  // Berkas — path relatif
+  foto: string | null;
+  file_kk: string | null;
+  file_akta: string | null;
+  file_surat_pernyataan: string | null;
+  // URL publik — dari accessor Laravel
+  foto_url: string | null;
+  file_kk_url: string | null;
+  file_akta_url: string | null;
+  file_surat_pernyataan_url: string | null;
   created_at: string;
   updated_at: string;
 }
