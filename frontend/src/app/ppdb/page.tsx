@@ -20,8 +20,10 @@ async function getAllPpdb(): Promise<Ppdb[]> {
     const res = await fetch(`${API_URL}/ppdb`, { next: { revalidate: 30 } });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
+    const items = data.data ? data.data : data;
+    return Array.isArray(items) ? items : [];
+  } catch (error) {
+    console.error("Error fetching PPDB:", error);
     return [];
   }
 }

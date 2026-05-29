@@ -12,9 +12,11 @@ async function getGalleries(): Promise<Gallery[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
+    const items = data.data ? data.data : data;
     // Guard: pastikan selalu array
-    return Array.isArray(data) ? data : [];
-  } catch {
+    return Array.isArray(items) ? items : [];
+  } catch (error) {
+    console.error("Error fetching galleries:", error);
     return [];
   }
 }

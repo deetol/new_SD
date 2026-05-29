@@ -28,7 +28,7 @@ class PendaftarPpdbController extends Controller
             $query->where('status', $request->status);
         }
 
-        $pendaftar = $query->latest()->get();
+        $pendaftar = $query->latest()->paginate(20);
 
         return response()->json($pendaftar);
     }

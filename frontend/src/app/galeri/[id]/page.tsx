@@ -13,9 +13,11 @@ async function getGallery(id: string): Promise<Gallery | null> {
     });
     if (!res.ok) return null;
     const data = await res.json();
+    const item = data.data ? data.data : data;
     // Guard: pastikan object bukan array
-    return data && !Array.isArray(data) ? data : null;
-  } catch {
+    return item && !Array.isArray(item) ? item : null;
+  } catch (error) {
+    console.error("Error fetching gallery:", error);
     return null;
   }
 }
@@ -27,8 +29,10 @@ async function getAllGalleries(): Promise<Gallery[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
+    const items = data.data ? data.data : data;
+    return Array.isArray(items) ? items : [];
+  } catch (error) {
+    console.error("Error fetching all galleries:", error);
     return [];
   }
 }

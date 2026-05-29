@@ -1,13 +1,10 @@
 import Link from "next/link";
-import type { Gallery } from "@/lib/api";
+import Image from "next/image";
+import { getStatistics, type Gallery } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
-const stats = [
-  { value: "-",    label: "Prestasi Internasional" },
-  { value: "-",   label: "Prestasi Nasional" },
-  { value: "-", label: "Prestasi Provinsi dan Regional" },
-];
+// Stats will be generated dynamically based on backend data
 
 async function getFeaturedGalleries(): Promise<Gallery[]> {
   try {
@@ -16,14 +13,25 @@ async function getFeaturedGalleries(): Promise<Gallery[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data.slice(0, 3) : [];
-  } catch {
+    const items = data.data ? data.data : data;
+    return Array.isArray(items) ? items.slice(0, 3) : [];
+  } catch (error) {
+    console.error("Error fetching galleries:", error);
     return [];
   }
 }
 
 export default async function Gallery() {
-  const featured = await getFeaturedGalleries();
+  const [featured, statsData] = await Promise.all([
+    getFeaturedGalleries(),
+    getStatistics()
+  ]);
+
+  const stats = [
+    { value: `${statsData?.prestasi?.internasional || 2}+`, label: "Prestasi Internasional" },
+    { value: `${statsData?.prestasi?.nasional || 5}+`, label: "Prestasi Nasional" },
+    { value: `${statsData?.prestasi?.provinsi || 12}+`, label: "Prestasi Provinsi dan Regional" },
+  ];
 
   return (
     <section className="py-24 bg-white dark:bg-background-dark/50">
@@ -62,11 +70,12 @@ export default async function Gallery() {
                 >
                   {/* Thumbnail */}
                   <div className="relative shrink-0 w-[120px] h-[80px] rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.thumbnail_url ?? ""}
+                    <Image
+                      src={item.thumbnail_url || "https://ui-avatars.com/api/?name=Foto"}
                       alt={item.judul}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      sizes="120px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
 

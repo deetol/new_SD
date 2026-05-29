@@ -192,5 +192,29 @@ export async function getTeachers(params?: {
   if (!res.ok)
     throw new Error(`Gagal mengambil data guru: ${res.status}`);
 
-  return res.json();
+  const data = await res.json();
+  return data.data ? data.data : data;
+}
+
+export interface Statistics {
+  siswa_aktif: number;
+  guru_ahli: number;
+  tahun_mengabdi: number;
+  tingkat_kelulusan: number;
+  prestasi: {
+    internasional: number;
+    nasional: number;
+    provinsi: number;
+  };
+}
+
+export async function getStatistics(): Promise<Statistics | null> {
+  try {
+    const res = await fetch(`${API_URL}/statistics`, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching statistics:", error);
+    return null;
+  }
 }

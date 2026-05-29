@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfilSekolahController;
 use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\PendaftarPpdbController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\StatisticController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,8 @@ Route::get('ppdb/{ppdb}',   [PpdbController::class, 'show']);
 
 Route::get('galleries',             [GalleryController::class, 'index']);
 Route::get('galleries/{gallery}',   [GalleryController::class, 'show']);
+
+Route::get('statistics',            [StatisticController::class, 'index']);
 
 // Pendaftar PPDB — store boleh publik (form pendaftaran)
 Route::post('pendaftar-ppdb', [PendaftarPpdbController::class, 'store']);

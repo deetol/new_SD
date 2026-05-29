@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Traits\HandlesImageUpload;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use App\Http\Requests\TeacherStoreRequest;
+use App\Http\Requests\TeacherUpdateRequest;
+use App\Http\Resources\TeacherResource;
 use Illuminate\Http\JsonResponse;
 
 class TeacherController extends Controller
@@ -27,9 +30,9 @@ class TeacherController extends Controller
             $query->where('tampil_di_profil', filter_var($request->tampil_di_profil, FILTER_VALIDATE_BOOLEAN));
         }
 
-        $teachers = $query->orderBy('urutan')->get();
+        $teachers = $query->orderBy('urutan')->paginate(20);
 
-        return response()->json($teachers);
+        return TeacherResource::collection($teachers)->response();
     }
 
     /**
@@ -39,20 +42,9 @@ class TeacherController extends Controller
      *   nama, nip, jabatan, status, mata_pelajaran, pendidikan,
      *   foto (file), is_active, urutan, tampil_di_profil
      */
-    public function store(Request $request): JsonResponse
+    public function store(TeacherStoreRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'nama'             => 'required|string|max:255',
-            'nip'              => 'nullable|string|max:255',
-            'jabatan'          => 'required|string|max:255',
-            'status'           => 'required|string|max:255',
-            'mata_pelajaran'   => 'nullable|string|max:255',
-            'pendidikan'       => 'nullable|string|max:255',
-            'foto'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'is_active'        => 'boolean',
-            'urutan'           => 'integer|min:0',
-            'tampil_di_profil' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $this->uploadImage($request->file('foto'), 'teachers');
@@ -62,7 +54,9 @@ class TeacherController extends Controller
 
         $teacher = Teacher::create($validated);
 
-        return response()->json($teacher, 201);
+        return (new TeacherResource($teacher))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
@@ -70,7 +64,7 @@ class TeacherController extends Controller
      */
     public function show(Teacher $teacher): JsonResponse
     {
-        return response()->json($teacher);
+        return (new TeacherResource($teacher))->response();
     }
 
     /**
@@ -78,20 +72,9 @@ class TeacherController extends Controller
      *
      * Gunakan POST + _method=PUT untuk multipart/form-data.
      */
-    public function update(Request $request, Teacher $teacher): JsonResponse
+    public function update(TeacherUpdateRequest $request, Teacher $teacher): JsonResponse
     {
-        $validated = $request->validate([
-            'nama'             => 'sometimes|required|string|max:255',
-            'nip'              => 'nullable|string|max:255',
-            'jabatan'          => 'sometimes|required|string|max:255',
-            'status'           => 'sometimes|required|string|max:255',
-            'mata_pelajaran'   => 'nullable|string|max:255',
-            'pendidikan'       => 'nullable|string|max:255',
-            'foto'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'is_active'        => 'boolean',
-            'urutan'           => 'integer|min:0',
-            'tampil_di_profil' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('foto')) {
             // Hapus foto lama sebelum simpan yang baru
@@ -103,7 +86,7 @@ class TeacherController extends Controller
 
         $teacher->update($validated);
 
-        return response()->json($teacher);
+        return (new TeacherResource($teacher))->response();
     }
 
     /**

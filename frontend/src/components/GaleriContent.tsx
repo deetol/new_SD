@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Gallery } from "@/lib/api";
 
 // ── Shared card components ────────────────────────────────────────────────────
@@ -9,12 +10,13 @@ function GalleryCard({ item }: { item: Gallery }) {
       href={`/galeri/${item.id}`}
       className="group flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/40 hover:shadow-lg transition-all"
     >
-      <div className="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={item.thumbnail_url ?? ""}
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
+        <Image
+          src={item.thumbnail_url || "https://ui-avatars.com/api/?name=Foto"}
           alt={item.judul}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
       </div>
       <div className="p-4 flex-grow">

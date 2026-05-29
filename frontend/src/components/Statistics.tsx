@@ -1,4 +1,8 @@
-export default function Statistics() {
+import { getStatistics } from "@/lib/api";
+
+export default async function Statistics() {
+  const stats = await getStatistics();
+
   return (
     <section className="py-4 bg-blue-600 dark:bg-background-dark/50 relative">
       <div className="max-w-7xl mx-auto px-4">
@@ -8,7 +12,7 @@ export default function Statistics() {
               groups
             </span>
             <h3 className="text-5xl md:text-6xl font-black text-white tracking-tight">
-              150+
+              {stats?.siswa_aktif || 150}+
             </h3>
             <p className="text-white/90 font-medium text-lg">
               Siswa Aktif
@@ -19,7 +23,7 @@ export default function Statistics() {
               co_present
             </span>
             <h3 className="text-5xl md:text-6xl font-black text-white tracking-tight">
-              20+
+              {stats?.guru_ahli || 20}+
             </h3>
             <p className="text-white/90 font-medium text-lg">
               Guru Ahli
@@ -30,7 +34,7 @@ export default function Statistics() {
               history_edu
             </span>
             <h3 className="text-5xl md:text-6xl font-black text-white tracking-tight">
-              30+
+              {stats?.tahun_mengabdi || 30}+
             </h3>
             <p className="text-white/90 font-medium text-lg">
               Tahun Mengabdi
@@ -41,7 +45,7 @@ export default function Statistics() {
               verified
             </span>
             <h3 className="text-5xl md:text-6xl font-black text-white tracking-tight">
-              95%
+              {stats?.tingkat_kelulusan || 95}%
             </h3>
             <p className="text-white/90 font-medium text-lg">
               Tingkat Kelulusan

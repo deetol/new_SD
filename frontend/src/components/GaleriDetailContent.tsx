@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Gallery } from "@/lib/api";
 import ShareButtons from "@/components/ShareButtons";
 
@@ -59,11 +60,13 @@ export default function GaleriDetailContent({ gallery, related, pageUrl }: Props
         <div>
           {/* Foto utama */}
           <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-800 mb-6 shadow-lg">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={gallery.thumbnail_url ?? ""}
+            <Image
+              src={gallery.thumbnail_url || "https://ui-avatars.com/api/?name=Foto"}
               alt={gallery.judul}
-              className="w-full h-full object-cover"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 800px"
+              className="object-cover"
             />
           </div>
 
@@ -90,11 +93,12 @@ export default function GaleriDetailContent({ gallery, related, pageUrl }: Props
                     key={idx}
                     className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800 group cursor-pointer"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={url}
+                    <Image
+                      src={url || "https://ui-avatars.com/api/?name=Foto"}
                       alt={`${gallery.judul} foto ${idx + 2}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      sizes="(max-width: 640px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                   </div>
@@ -130,11 +134,12 @@ export default function GaleriDetailContent({ gallery, related, pageUrl }: Props
                   >
                     {/* Thumbnail kecil */}
                     <div className="relative shrink-0 w-16 h-12 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={r.thumbnail_url ?? ""}
+                      <Image
+                        src={r.thumbnail_url || "https://ui-avatars.com/api/?name=Foto"}
                         alt={r.judul}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        sizes="64px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                     {/* Judul */}

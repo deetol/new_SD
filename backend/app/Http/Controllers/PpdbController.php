@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Ppdb;
 use Illuminate\Http\Request;
+use App\Http\Requests\PpdbStoreRequest;
+use App\Http\Requests\PpdbUpdateRequest;
 use Illuminate\Http\JsonResponse;
 
 class PpdbController extends Controller
@@ -13,7 +15,7 @@ class PpdbController extends Controller
      */
     public function index(): JsonResponse
     {
-        $ppdb = Ppdb::latest()->get();
+        $ppdb = Ppdb::latest()->paginate(10);
 
         return response()->json($ppdb);
     }
@@ -21,20 +23,9 @@ class PpdbController extends Controller
     /**
      * Simpan data PPDB baru.
      */
-    public function store(Request $request): JsonResponse
+    public function store(PpdbStoreRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'judul'           => 'required|string|max:255',
-            'tahun_ajaran'    => 'required|integer',
-            'deskripsi'       => 'nullable|string',
-            'persyaratan'     => 'nullable|string',
-            'alur_langkah'    => 'nullable|array',
-            'jadwal_kegiatan' => 'nullable|array',
-            'tanggal_buka'    => 'required|date',
-            'tanggal_tutup'   => 'required|date|after_or_equal:tanggal_buka',
-            'kuota'           => 'nullable|integer|min:1',
-            'is_active'       => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $ppdb = Ppdb::create($validated);
 
@@ -54,20 +45,9 @@ class PpdbController extends Controller
     /**
      * Update data PPDB.
      */
-    public function update(Request $request, Ppdb $ppdb): JsonResponse
+    public function update(PpdbUpdateRequest $request, Ppdb $ppdb): JsonResponse
     {
-        $validated = $request->validate([
-            'judul'           => 'sometimes|required|string|max:255',
-            'tahun_ajaran'    => 'sometimes|required|integer',
-            'deskripsi'       => 'nullable|string',
-            'persyaratan'     => 'nullable|string',
-            'alur_langkah'    => 'nullable|array',
-            'jadwal_kegiatan' => 'nullable|array',
-            'tanggal_buka'    => 'sometimes|required|date',
-            'tanggal_tutup'   => 'sometimes|required|date|after_or_equal:tanggal_buka',
-            'kuota'           => 'nullable|integer|min:1',
-            'is_active'       => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $ppdb->update($validated);
 

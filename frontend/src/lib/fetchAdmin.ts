@@ -54,5 +54,11 @@ export async function adminFetch<T = unknown>(
     throw new Error(String(msg));
   }
 
-  return data as T;
+  // Unwrap Laravel API Resource wrapper or Pagination wrapper
+  let unwrappedData = data;
+  if (data && typeof data === "object" && !Array.isArray(data) && "data" in data) {
+    unwrappedData = data.data;
+  }
+
+  return unwrappedData as T;
 }

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Traits\HandlesImageUpload;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
+use App\Http\Requests\GalleryStoreRequest;
+use App\Http\Requests\GalleryUpdateRequest;
+use App\Http\Resources\GalleryResource;
 use Illuminate\Http\JsonResponse;
 
 class GalleryController extends Controller
@@ -19,7 +22,7 @@ class GalleryController extends Controller
             $query->where('kategori', $request->kategori);
         }
 
-        return response()->json($query->get());
+        return GalleryResource::collection($query->paginate(12))->response();
     }
 
     /**
@@ -33,18 +36,9 @@ class GalleryController extends Controller
      *   deskripsi          nullable|string
      *   tanggal_kegiatan   required|date
      */
-    public function store(Request $request): JsonResponse
+    public function store(GalleryStoreRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'judul'              => 'required|string|max:255',
-            'kategori'           => 'required|in:' . implode(',', Gallery::KATEGORI),
-            'slug'               => 'nullable|string|max:255|unique:galleries,slug',
-            'thumbnail'          => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'foto_tambahan'      => 'nullable|array|max:10',
-            'foto_tambahan.*'    => 'image|mimes:jpg,jpeg,png,webp|max:5120',
-            'deskripsi'          => 'nullable|string',
-            'tanggal_kegiatan'   => 'required|date',
-        ]);
+        $validated = $request->validated();
 
         $validated['slug']      = $validated['slug'] ?? Gallery::generateSlug($validated['judul']);
         $validated['thumbnail'] = $this->uploadImage($request->file('thumbnail'), 'galleries');
@@ -59,12 +53,14 @@ class GalleryController extends Controller
             $validated['foto_tambahan'] = [];
         }
 
-        return response()->json(Gallery::create($validated), 201);
+        return (new GalleryResource(Gallery::create($validated)))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(Gallery $gallery): JsonResponse
     {
-        return response()->json($gallery);
+        return (new GalleryResource($gallery))->response();
     }
 
     /**
@@ -74,20 +70,9 @@ class GalleryController extends Controller
      * foto_tambahan_hapus[]  — array index foto tambahan yang ingin dihapus (0-based)
      * foto_tambahan[]        — file baru yang ditambahkan
      */
-    public function update(Request $request, Gallery $gallery): JsonResponse
+    public function update(GalleryUpdateRequest $request, Gallery $gallery): JsonResponse
     {
-        $validated = $request->validate([
-            'judul'                  => 'sometimes|required|string|max:255',
-            'kategori'               => 'sometimes|required|in:' . implode(',', Gallery::KATEGORI),
-            'slug'                   => 'nullable|string|max:255|unique:galleries,slug,' . $gallery->id,
-            'thumbnail'              => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'foto_tambahan'          => 'nullable|array|max:10',
-            'foto_tambahan.*'        => 'image|mimes:jpg,jpeg,png,webp|max:5120',
-            'foto_tambahan_hapus'    => 'nullable|array',
-            'foto_tambahan_hapus.*'  => 'integer|min:0',
-            'deskripsi'              => 'nullable|string',
-            'tanggal_kegiatan'       => 'sometimes|required|date',
-        ]);
+        $validated = $request->validated();
 
         if (isset($validated['judul']) && !isset($validated['slug'])) {
             $validated['slug'] = Gallery::generateSlug($validated['judul']);
@@ -129,7 +114,7 @@ class GalleryController extends Controller
 
         $gallery->update($validated);
 
-        return response()->json($gallery);
+        return (new GalleryResource($gallery))->response();
     }
 
     public function destroy(Gallery $gallery): JsonResponse
