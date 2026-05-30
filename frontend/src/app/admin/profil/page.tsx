@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 import { adminFetch } from "@/lib/fetchAdmin";
 import type { ProfilSekolah } from "@/lib/api";
+import Image from "next/image";
 
 const inputCls = "w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary";
 const textareaCls = `${inputCls} resize-none`;
@@ -32,6 +33,11 @@ export default function AdminProfilPage() {
   const [error, setError]     = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Logo preview
+  const logoInputRef              = useRef<HTMLInputElement>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile]   = useState<File | null>(null);
+
   // Form fields
   const [namaSekolah, setNamaSekolah]     = useState("");
   const [npsn, setNpsn]                   = useState("");
@@ -48,6 +54,7 @@ export default function AdminProfilPage() {
   const [visi, setVisi]                   = useState("");
   const [misi, setMisi]                   = useState("");
   const [pengantar, setPengantar]         = useState("");
+  const [visiMisiPengantar, setVisiMisiPengantar] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -69,6 +76,7 @@ export default function AdminProfilPage() {
       setVisi(data.visi ?? "");
       setMisi(data.misi ?? "");
       setPengantar(data.pengantar ?? "");
+      setVisiMisiPengantar(data.visi_misi_pengantar ?? "");
     } catch {
       // Profil belum ada — form kosong untuk create
     } finally {
@@ -78,43 +86,59 @@ export default function AdminProfilPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
     setSuccess(false);
 
-    const body = {
-      nama_sekolah:  namaSekolah,
-      npsn:          npsn || null,
-      alamat,
-      kelurahan:     kelurahan || null,
-      kecamatan:     kecamatan || null,
-      kabupaten:     kabupaten || null,
-      provinsi:      provinsi || null,
-      kode_pos:      kodePos || null,
-      no_telepon:    noTelepon || null,
-      email:         email || null,
-      kepala_sekolah: kepalaSekolah || null,
-      sejarah:       sejarah || null,
-      visi:          visi || null,
-      misi:          misi || null,
-      pengantar:     pengantar || null,
-    };
-
     try {
+      // Gunakan FormData agar bisa upload logo sekaligus
+      const form = new FormData();
+      form.append("nama_sekolah",        namaSekolah);
+      form.append("alamat",              alamat);
+      if (npsn)              form.append("npsn",              npsn);
+      if (kelurahan)         form.append("kelurahan",         kelurahan);
+      if (kecamatan)         form.append("kecamatan",         kecamatan);
+      if (kabupaten)         form.append("kabupaten",         kabupaten);
+      if (provinsi)          form.append("provinsi",          provinsi);
+      if (kodePos)           form.append("kode_pos",          kodePos);
+      if (noTelepon)         form.append("no_telepon",        noTelepon);
+      if (email)             form.append("email",             email);
+      if (kepalaSekolah)     form.append("kepala_sekolah",    kepalaSekolah);
+      if (sejarah)           form.append("sejarah",           sejarah);
+      if (visi)              form.append("visi",              visi);
+      if (misi)              form.append("misi",              misi);
+      if (pengantar)         form.append("pengantar",         pengantar);
+      if (visiMisiPengantar) form.append("visi_misi_pengantar", visiMisiPengantar);
+      if (logoFile)          form.append("logo",              logoFile);
+
+      let saved: ProfilSekolah;
       if (profil) {
-        await adminFetch(`/profil-sekolah/${profil.id}`, {
-          method: "PUT",
-          body: JSON.stringify(body),
+        // Update — Laravel tidak support PUT multipart, pakai POST + _method
+        form.append("_method", "PUT");
+        saved = await adminFetch<ProfilSekolah>(`/profil-sekolah/${profil.id}`, {
+          method: "POST",
+          body: form,
         });
       } else {
-        const created = await adminFetch<ProfilSekolah>("/profil-sekolah", {
+        // Create (atau updateOrCreate di backend)
+        saved = await adminFetch<ProfilSekolah>("/profil-sekolah", {
           method: "POST",
-          body: JSON.stringify(body),
+          body: form,
         });
-        setProfil(created);
       }
+
+      setProfil(saved);
+      setLogoFile(null);
+      setLogoPreview(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -135,6 +159,8 @@ export default function AdminProfilPage() {
     );
   }
 
+  const currentLogoUrl = logoPreview ?? profil?.logo_url ?? null;
+
   return (
     <AdminShell title="Profil Sekolah">
       <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
@@ -154,6 +180,46 @@ export default function AdminProfilPage() {
         {/* Identitas */}
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
           <SectionTitle>Identitas Sekolah</SectionTitle>
+
+          {/* Logo upload */}
+          <Field label="Logo Sekolah">
+            <div className="flex items-center gap-4">
+              <div
+                className="size-20 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-800 cursor-pointer hover:border-primary transition-colors"
+                onClick={() => logoInputRef.current?.click()}
+              >
+                {currentLogoUrl ? (
+                  <Image
+                    src={currentLogoUrl}
+                    alt="Logo sekolah"
+                    width={80}
+                    height={80}
+                    className="object-contain w-full h-full p-1"
+                  />
+                ) : (
+                  <span className="material-symbols-outlined text-slate-400 text-3xl">add_photo_alternate</span>
+                )}
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  {currentLogoUrl ? "Ganti logo" : "Upload logo"}
+                </button>
+                <p className="text-xs text-slate-400 mt-0.5">JPG, PNG, WebP — maks 2MB</p>
+              </div>
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/jpg,image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleLogoChange}
+              />
+            </div>
+          </Field>
+
           <Field label="Nama Sekolah *">
             <input required value={namaSekolah} onChange={(e) => setNamaSekolah(e.target.value)}
               className={inputCls} placeholder="SD Negeri 5 Selok Awar-Awar" />
@@ -223,10 +289,15 @@ export default function AdminProfilPage() {
               className={textareaCls} placeholder="Visi sekolah..." />
           </Field>
           <Field label="Misi">
-            <textarea rows={5} value={misi} onChange={(e) => setMisi(e.target.value)}
-              className={textareaCls} placeholder="Misi sekolah (pisahkan tiap poin dengan baris baru)..." />
+            <textarea rows={6} value={misi} onChange={(e) => setMisi(e.target.value)}
+              className={textareaCls} placeholder="Tulis tiap poin misi pada baris baru..." />
+            <p className="text-xs text-slate-400 mt-1">Tiap baris akan ditampilkan sebagai satu kartu misi di halaman profil.</p>
           </Field>
-          <Field label="Sambutan Kepala Sekolah">
+          <Field label="Pengantar Visi &amp; Misi">
+            <input value={visiMisiPengantar} onChange={(e) => setVisiMisiPengantar(e.target.value)}
+              className={inputCls} placeholder="Subjudul di bawah bagian misi..." />
+          </Field>
+          <Field label="Sambutan / Pengantar Kepala Sekolah">
             <textarea rows={6} value={pengantar} onChange={(e) => setPengantar(e.target.value)}
               className={textareaCls} placeholder="Kata sambutan dari kepala sekolah..." />
           </Field>

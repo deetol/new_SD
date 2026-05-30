@@ -9,6 +9,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 
 use App\Http\Traits\HandlesImageUpload;
+use App\Mail\PendaftarPpdbMail;
+use Illuminate\Support\Facades\Mail;
 
 class PendaftarPpdbController extends Controller
 {
@@ -121,12 +123,31 @@ class PendaftarPpdbController extends Controller
         }
 
         // Generate nomor pendaftaran otomatis: PPDB-YYYY-XXXXX
+        // Retry jika terjadi collision (unique constraint di DB)
         $ppdb = Ppdb::findOrFail($validated['ppdb_id']);
-        $validated['nomor_pendaftaran'] = 'PPDB-' . $ppdb->tahun_ajaran . '-' . strtoupper(Str::random(5));
+        $maxAttempts = 10;
+        $nomor = null;
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            $candidate = 'PPDB-' . $ppdb->tahun_ajaran . '-' . strtoupper(Str::random(5));
+            if (!PendaftarPpdb::where('nomor_pendaftaran', $candidate)->exists()) {
+                $nomor = $candidate;
+                break;
+            }
+        }
+        if (!$nomor) {
+            return response()->json(['message' => 'Gagal membuat nomor pendaftaran. Coba lagi.'], 500);
+        }
+
+        $validated['nomor_pendaftaran'] = $nomor;
         $validated['status']            = 'menunggu';
         $validated['submitted_at']      = now();
 
         $pendaftar = PendaftarPpdb::create($validated);
+
+        // Kirim email konfirmasi jika pendaftar menyertakan alamat email
+        if ($pendaftar->email) {
+            Mail::to($pendaftar->email)->queue(new PendaftarPpdbMail($pendaftar->load('ppdb')));
+        }
 
         return response()->json($pendaftar, 201);
     }
@@ -143,6 +164,8 @@ class PendaftarPpdbController extends Controller
 
     /**
      * Update data pendaftar.
+     * Catatan: field berkas (foto, file_kk, dll.) tidak bisa diubah lewat
+     * endpoint ini — gunakan endpoint upload terpisah jika diperlukan.
      */
     public function update(Request $request, PendaftarPpdb $pendaftarPpdb): JsonResponse
     {
@@ -167,10 +190,6 @@ class PendaftarPpdbController extends Controller
             'no_hp'                 => 'sometimes|required|string|max:255',
             'email'                 => 'nullable|email|max:255',
             'asal_tk'               => 'nullable|string|max:255',
-            'foto'                  => 'nullable|string|max:255',
-            'file_kk'               => 'nullable|string|max:255',
-            'file_akta'             => 'nullable|string|max:255',
-            'file_surat_pernyataan' => 'nullable|string|max:255',
             'catatan_admin'         => 'nullable|string',
             'status'                => 'nullable|in:menunggu,diterima,ditolak',
         ]);

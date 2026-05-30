@@ -44,11 +44,11 @@ Route::get('galleries/{gallery}',   [GalleryController::class, 'show']);
 
 Route::get('statistics',            [StatisticController::class, 'index']);
 
-// Pendaftar PPDB — store boleh publik (form pendaftaran)
-Route::post('pendaftar-ppdb', [PendaftarPpdbController::class, 'store']);
+// Pendaftar PPDB — store boleh publik (form pendaftaran), dibatasi 10 req/menit
+Route::post('pendaftar-ppdb', [PendaftarPpdbController::class, 'store'])->middleware('throttle:10,1');
 
-// Cek status pendaftaran via nomor pendaftaran — publik
-Route::get('pendaftar-ppdb/cek', [PendaftarPpdbController::class, 'cek']);
+// Cek status pendaftaran via nomor pendaftaran — publik, dibatasi 30 req/menit
+Route::get('pendaftar-ppdb/cek', [PendaftarPpdbController::class, 'cek'])->middleware('throttle:30,1');
 
 /*
 |--------------------------------------------------------------------------
@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Profil Sekolah — CUD
     Route::post('profil-sekolah',                  [ProfilSekolahController::class, 'store']);
-    Route::post('profil-sekolah/{profil_sekolah}', [ProfilSekolahController::class, 'update']);
+    Route::post('profil-sekolah/{profil_sekolah}', [ProfilSekolahController::class, 'update']);  // POST + _method=PUT
     Route::put('profil-sekolah/{profil_sekolah}',  [ProfilSekolahController::class, 'update']);
     Route::delete('profil-sekolah/{profil_sekolah}', [ProfilSekolahController::class, 'destroy']);
 

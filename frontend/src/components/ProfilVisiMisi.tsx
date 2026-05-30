@@ -1,39 +1,35 @@
+import type { ProfilSekolah } from "@/lib/api";
 import Image from "next/image";
 
-const misiItems = [
-  {
-    icon: "auto_awesome",
-    judul: "Spiritualitas",
-    desc: "Menanamkan nilai-nilai keagamaan dan moral dalam setiap aspek kegiatan pembelajaran harian.",
-  },
-  {
-    icon: "lightbulb",
-    judul: "Kecerdasan",
-    desc: "Mengembangkan potensi akademik siswa melalui metode pembelajaran yang inovatif dan partisipatif.",
-  },
-  {
-    icon: "construction",
-    judul: "Keterampilan",
-    desc: "Membekali siswa dengan keterampilan hidup dan kreativitas untuk menghadapi tantangan masa depan.",
-  },
-  {
-    icon: "nature_people",
-    judul: "Lingkungan",
-    desc: "Membudayakan sikap peduli lingkungan melalui program Adiwiyata dan pengelolaan sekolah hijau.",
-  },
-  {
-    icon: "groups",
-    judul: "Sosial",
-    desc: "Menumbuhkan jiwa sosial, kerjasama, dan toleransi antar warga sekolah serta masyarakat luas.",
-  },
-  {
-    icon: "devices",
-    judul: "Teknologi",
-    desc: "Mengintegrasikan teknologi informasi dalam tata kelola dan proses pembelajaran sekolah.",
-  },
+// Icon mapping untuk poin-poin misi yang diparsing dari teks
+const MISI_ICONS = [
+  "auto_awesome",
+  "lightbulb",
+  "construction",
+  "nature_people",
+  "groups",
+  "devices",
+  "star",
+  "favorite",
+  "school",
+  "emoji_events",
 ];
 
-export default function ProfilVisiMisi() {
+interface Props {
+  profil: ProfilSekolah | null;
+}
+
+export default function ProfilVisiMisi({ profil }: Props) {
+  // Parse misi: tiap baris non-kosong jadi satu poin
+  const misiLines = profil?.misi
+    ? profil.misi
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+    : [];
+
+  const visiText = profil?.visi ?? null;
+
   return (
     <section className="mb-20">
 
@@ -57,10 +53,13 @@ export default function ProfilVisiMisi() {
           <span className="material-symbols-outlined text-[16px]">visibility</span>
           Visi Kami
         </div>
-        <blockquote className="text-xl md:text-3xl font-bold text-slate-900 dark:text-white italic leading-snug max-w-3xl mx-auto">
-          &quot;Terwujudnya generasi yang beriman, cerdas, terampil, dan
-          berwawasan lingkungan.&quot;
-        </blockquote>
+        {visiText ? (
+          <blockquote className="text-xl md:text-3xl font-bold text-slate-900 dark:text-white italic leading-snug max-w-3xl mx-auto">
+            &quot;{visiText}&quot;
+          </blockquote>
+        ) : (
+          <p className="text-slate-400 dark:text-slate-500 italic">Visi belum diisi.</p>
+        )}
         <div className="mt-6 h-1 w-20 bg-primary rounded-full mx-auto" />
       </div>
 
@@ -74,29 +73,40 @@ export default function ProfilVisiMisi() {
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
             Langkah Strategis Kami
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">
-            Dalam mencapai tujuan pendidikan yang berkualitas
-          </p>
+          {profil?.visi_misi_pengantar ? (
+            <p className="text-slate-500 dark:text-slate-400 mt-2">
+              {profil.visi_misi_pengantar}
+            </p>
+          ) : (
+            <p className="text-slate-500 dark:text-slate-400 mt-2">
+              Dalam mencapai tujuan pendidikan yang berkualitas
+            </p>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {misiItems.map((item, i) => (
-            <div
-              key={i}
-              className="group p-6 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-lg hover:-translate-y-0.5 transition-all"
-            >
-              <div className="mb-4 size-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
+        {misiLines.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {misiLines.map((line, i) => (
+              <div
+                key={i}
+                className="group p-6 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+              >
+                <div className="mb-4 size-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                  <span className="material-symbols-outlined text-[22px]">
+                    {MISI_ICONS[i % MISI_ICONS.length]}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {line}
+                </p>
               </div>
-              <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">
-                {item.judul}
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-slate-400 dark:text-slate-500 italic">
+            Misi belum diisi.
+          </p>
+        )}
       </div>
 
     </section>

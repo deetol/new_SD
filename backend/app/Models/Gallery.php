@@ -52,8 +52,15 @@ class Gallery extends Model
 
     public static function generateSlug(string $judul): string
     {
-        $slug  = Str::slug($judul);
-        $count = static::where('slug', 'like', "{$slug}%")->count();
-        return $count > 0 ? "{$slug}-{$count}" : $slug;
+        $base = Str::slug($judul);
+        $slug = $base;
+        $i    = 1;
+
+        while (static::where('slug', $slug)->exists()) {
+            $slug = "{$base}-{$i}";
+            $i++;
+        }
+
+        return $slug;
     }
 }

@@ -1,6 +1,14 @@
 import Link from "next/link";
+import type { ProfilSekolah } from "@/lib/api";
 
-export default function ProfilHero() {
+interface Props {
+  profil: ProfilSekolah | null;
+}
+
+export default function ProfilHero({ profil }: Props) {
+  const namaSekolah = profil?.nama_sekolah ?? "SD Negeri Selok Awar-Awar 05";
+  const pengantar   = profil?.pengantar ?? "Menciptakan lingkungan belajar yang inspiratif dan berwawasan lingkungan untuk generasi masa depan.";
+
   return (
     <>
       <nav className="flex items-center gap-2 mb-8 text-sm font-medium overflow-x-auto whitespace-nowrap">
@@ -16,20 +24,15 @@ export default function ProfilHero() {
       <section className="relative rounded-xl overflow-hidden mb-12 h-64 md:h-80 lg:h-96">
         <div
           className="absolute inset-0 bg-cover bg-top"
-          data-alt="Tampak depan gedung SD Negeri Selok Awar-Awar 05 yang asri"
-          style={{
-            backgroundImage:
-              "url('/bg-sekolah.jpg')",
-          }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-background-dark/80 via-transparent to-transparent"></div>
+          style={{ backgroundImage: "url('/bg-sekolah.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background-dark/80 via-transparent to-transparent" />
         <div className="absolute bottom-0 left-0 p-8">
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 text-balance">
-            Profil SD Negeri Selok Awar-Awar 05
+            Profil {namaSekolah}
           </h1>
           <p className="text-slate-200 max-w-2xl font-light text-balance">
-            Menciptakan lingkungan belajar yang inspiratif dan berwawasan
-            lingkungan untuk generasi masa depan.
+            {pengantar}
           </p>
         </div>
       </section>

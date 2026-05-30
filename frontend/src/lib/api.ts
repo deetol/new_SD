@@ -170,30 +170,63 @@ export interface ProfilSekolah {
   timeline: unknown[] | null;
   kepala_sekolah: string | null;
   logo: string | null;
+  logo_url: string | null;
   created_at: string;
   updated_at: string;
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export async function getTeachers(params?: {
-  is_active?: boolean;
-  tampil_di_profil?: boolean;
-}): Promise<Teacher[]> {
-  const url = new URL(`${API_URL}/teachers`);
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+  };
+  links: {
+    first: string | null;
+    last: string | null;
+    prev: string | null;
+    next: string | null;
+  };
+}
 
-  if (params?.is_active !== undefined)
-    url.searchParams.set("is_active", String(params.is_active));
-  if (params?.tampil_di_profil !== undefined)
-    url.searchParams.set("tampil_di_profil", String(params.tampil_di_profil));
+export async function getGalleries(params?: {
+  page?: number;
+  per_page?: number;
+  kategori?: string;
+}): Promise<PaginatedResponse<Gallery>> {
+  const url = new URL(`${API_URL}/galleries`);
+  if (params?.page)      url.searchParams.set("page",      String(params.page));
+  if (params?.per_page)  url.searchParams.set("per_page",  String(params.per_page));
+  if (params?.kategori)  url.searchParams.set("kategori",  params.kategori);
 
   const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+  if (!res.ok) throw new Error(`Gagal mengambil galeri: ${res.status}`);
+  return res.json();
+}
 
-  if (!res.ok)
-    throw new Error(`Gagal mengambil data guru: ${res.status}`);
+export async function getTeachersPaginated(params?: {
+  page?: number;
+  per_page?: number;
+  is_active?: boolean;
+  tampil_di_profil?: boolean;
+}): Promise<PaginatedResponse<Teacher>> {
+  const url = new URL(`${API_URL}/teachers`);
+  if (params?.page)             url.searchParams.set("page",             String(params.page));
+  if (params?.per_page)         url.searchParams.set("per_page",         String(params.per_page));
+  if (params?.is_active !== undefined)
+    url.searchParams.set("is_active",         String(params.is_active));
+  if (params?.tampil_di_profil !== undefined)
+    url.searchParams.set("tampil_di_profil",  String(params.tampil_di_profil));
 
-  const data = await res.json();
-  return data.data ? data.data : data;
+  const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+  if (!res.ok) throw new Error(`Gagal mengambil data guru: ${res.status}`);
+  return res.json();
 }
 
 export interface Statistics {
@@ -215,6 +248,19 @@ export async function getStatistics(): Promise<Statistics | null> {
     return await res.json();
   } catch (error) {
     console.error("Error fetching statistics:", error);
+    return null;
+  }
+}
+
+export async function getProfilSekolah(): Promise<ProfilSekolah | null> {
+  try {
+    const res = await fetch(`${API_URL}/profil-sekolah`, { next: { revalidate: 300 } });
+    if (!res.ok) return null;
+    // ProfilSekolahResource wraps in { data: ... }
+    const json = await res.json();
+    return json.data ? json.data : json;
+  } catch (error) {
+    console.error("Error fetching profil sekolah:", error);
     return null;
   }
 }

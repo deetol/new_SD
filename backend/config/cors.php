@@ -7,9 +7,10 @@ return [
     | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
     |
-    | Mengizinkan Next.js frontend (localhost:3000) mengakses Laravel API
-    | menggunakan Bearer token. Tidak perlu credentials/cookie karena
-    | kita pakai token-based auth, bukan SPA session.
+    | Mengizinkan Next.js frontend mengakses Laravel API menggunakan Bearer
+    | token. Set CORS_ALLOWED_ORIGINS di .env untuk production, pisahkan
+    | beberapa origin dengan koma.
+    | Contoh: CORS_ALLOWED_ORIGINS=https://sekolah.id,https://www.sekolah.id
     |
     */
 
@@ -17,10 +18,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-    ],
+    'allowed_origins' => array_filter(
+        array_map('trim', explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')))
+    ),
 
     'allowed_origins_patterns' => [],
 

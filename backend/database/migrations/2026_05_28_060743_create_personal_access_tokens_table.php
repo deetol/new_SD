@@ -12,29 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         if (!Schema::hasTable('personal_access_tokens')) {
-            Schema::create('teachers', function (Blueprint $table) {
+            Schema::create('personal_access_tokens', function (Blueprint $table) {
                 $table->id();
-
+                $table->morphs('tokenable');
                 $table->string('name');
-                $table->string('nip')->nullable();
-
-                $table->string('position');
-                $table->string('status')->nullable();
-
-                $table->string('subject')->nullable();
-
-                $table->string('education')->nullable();
-
-                $table->string('photo')->nullable();
-
-                $table->text('description')->nullable();
-
-                $table->boolean('is_active')->default(true);
-
-                $table->integer('order')->default(0);
-
-                $table->boolean('show_on_profile')->default(true);
-
+                $table->string('token', 64)->unique();
+                $table->text('abilities')->nullable();
+                $table->timestamp('last_used_at')->nullable();
+                $table->timestamp('expires_at')->nullable();
                 $table->timestamps();
             });
         }

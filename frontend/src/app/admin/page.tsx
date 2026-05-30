@@ -12,6 +12,23 @@ interface Stats {
   pendaftar: number;
 }
 
+/** Ambil total dari response — support paginated (meta.total / total) maupun array biasa */
+function extractTotal(data: unknown): number {
+  if (Array.isArray(data)) return data.length;
+  if (data && typeof data === "object") {
+    const d = data as Record<string, unknown>;
+    // Laravel pagination: { meta: { total: N } } atau { total: N }
+    if (typeof d.meta === "object" && d.meta !== null) {
+      const meta = d.meta as Record<string, unknown>;
+      if (typeof meta.total === "number") return meta.total;
+    }
+    if (typeof d.total === "number") return d.total;
+    // Sudah di-unwrap oleh adminFetch → array
+    if (Array.isArray(d)) return (d as unknown[]).length;
+  }
+  return 0;
+}
+
 const menuCards = [
   { label: "Guru",           href: "/admin/guru",      icon: "group",         desc: "Kelola data guru & staf" },
   { label: "Galeri",         href: "/admin/galeri",    icon: "photo_library", desc: "Upload & kelola foto kegiatan" },
@@ -26,16 +43,16 @@ export default function AdminDashboard() {
   const loadStats = useCallback(async () => {
     try {
       const [teachers, galleries, ppdb, pendaftar] = await Promise.all([
-        adminFetch<unknown[]>("/teachers").catch(() => []),
-        adminFetch<unknown[]>("/galleries").catch(() => []),
-        adminFetch<unknown[]>("/ppdb").catch(() => []),
-        adminFetch<unknown[]>("/pendaftar-ppdb").catch(() => []),
+        adminFetch<unknown>("/teachers", { _raw: true }).catch(() => null),
+        adminFetch<unknown>("/galleries", { _raw: true }).catch(() => null),
+        adminFetch<unknown>("/ppdb", { _raw: true }).catch(() => null),
+        adminFetch<unknown>("/pendaftar-ppdb", { _raw: true }).catch(() => null),
       ]);
       setStats({
-        teachers: (teachers as unknown[]).length,
-        galleries: (galleries as unknown[]).length,
-        ppdb: (ppdb as unknown[]).length,
-        pendaftar: (pendaftar as unknown[]).length,
+        teachers:  extractTotal(teachers),
+        galleries: extractTotal(galleries),
+        ppdb:      extractTotal(ppdb),
+        pendaftar: extractTotal(pendaftar),
       });
     } catch {
       // stats opsional, tidak perlu error state

@@ -31,6 +31,9 @@ class PpdbResource extends JsonResource
             'is_active'        => (bool) $this->is_active,
             'created_at'       => $this->created_at,
             'updated_at'       => $this->updated_at,
+            // Hanya disertakan jika relasi sudah di-load (misal dari show())
+            'pendaftar_count'  => $this->whenLoaded('pendaftar', fn() => $this->pendaftar->count()),
+            'pendaftar'        => $this->whenLoaded('pendaftar'),
         ];
     }
 }

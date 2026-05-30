@@ -7,15 +7,13 @@ import {
   useEffect,
   useState,
 } from "react";
-import { loginApi, logoutApi, getMeApi, type User } from "@/lib/api";
-import { getToken, removeToken, setToken } from "@/lib/auth";
+import type { User } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
 }
 
@@ -34,40 +32,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [state, setState] = useState<AuthState>({
     user: null,
-    token: null,
     isLoading: true,
   });
 
-  // Restore session dari cookie saat pertama load
+  // Restore session — panggil /api/auth/me (Next.js route) yang membaca
+  // httpOnly cookie di server, lalu kembalikan data user.
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      setState({ user: null, token: null, isLoading: false });
-      return;
-    }
-
-    getMeApi(token)
-      .then((user) => setState({ user, token, isLoading: false }))
-      .catch(() => {
-        removeToken();
-        setState({ user: null, token: null, isLoading: false });
-      });
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((user: User) => setState({ user, isLoading: false }))
+      .catch(() => setState({ user: null, isLoading: false }));
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const { user, token } = await loginApi(email, password);
-    setToken(token);
-    setState({ user, token, isLoading: false });
-    router.push("/admin");
-  }, [router]);
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.message ?? "Login gagal.");
+    }
+
+    setState({ user: data.user as User, isLoading: false });
+    // Hard navigation agar cookie httpOnly terbaca oleh middleware
+    // sebelum halaman admin dimuat
+    window.location.href = "/admin";
+  }, []);
 
   const logout = useCallback(async () => {
-    const token = state.token ?? getToken();
-    if (token) await logoutApi(token).catch(() => {});
-    removeToken();
-    setState({ user: null, token: null, isLoading: false });
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    setState({ user: null, isLoading: false });
     router.push("/admin/login");
-  }, [state.token, router]);
+  }, [router]);
 
   return (
     <AuthContext.Provider value={{ ...state, login, logout }}>

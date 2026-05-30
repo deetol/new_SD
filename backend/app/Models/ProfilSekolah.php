@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class ProfilSekolah extends Model
 {
@@ -34,4 +35,15 @@ class ProfilSekolah extends Model
         'penghargaan' => 'array',
         'timeline'    => 'array',
     ];
+
+    protected $appends = ['logo_url'];
+
+    /**
+     * Accessor: kembalikan URL publik logo sekolah.
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (!$this->logo) return null;
+        return Storage::disk('public')->url($this->logo);
+    }
 }

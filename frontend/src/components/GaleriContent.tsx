@@ -1,8 +1,14 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { Gallery } from "@/lib/api";
+import type { Gallery, PaginatedResponse } from "@/lib/api";
+import LoadMoreButton from "@/components/LoadMoreButton";
 
-// ── Shared card components ────────────────────────────────────────────────────
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+
+// ── Shared card ───────────────────────────────────────────────────────────────
 
 function GalleryCard({ item }: { item: Gallery }) {
   return (
@@ -52,51 +58,76 @@ function SectionHeader({ title, desc }: { title: string; desc: string }) {
   );
 }
 
-// ── Main component — menerima data dari server ────────────────────────────────
+// ── Section config ────────────────────────────────────────────────────────────
 
-interface Props {
-  galleries: Gallery[];
-}
+const SECTIONS: { kategori: Gallery["kategori"]; title: string; desc: string }[] = [
+  { kategori: "Ekstrakurikuler", title: "Ekstrakurikuler",  desc: "Pengembangan bakat dan minat siswa melalui berbagai klub seni dan olahraga." },
+  { kategori: "Galeri Umum",    title: "Galeri Umum",      desc: "Melihat lebih dekat lingkungan belajar dan aktivitas harian di sekolah kami." },
+  { kategori: "Perayaan",       title: "Perayaan",         desc: "Momen meriah perayaan hari besar nasional dan acara khusus sekolah." },
+  { kategori: "Penghargaan",    title: "Penghargaan",      desc: "Bukti nyata dedikasi dan prestasi akademik maupun non-akademik siswa kami." },
+];
 
-const SECTIONS: {
+// ── Per-category section with its own load-more ───────────────────────────────
+
+function GaleriSection({
+  kategori, title, desc, initialItems, initialLastPage,
+}: {
   kategori: Gallery["kategori"];
   title: string;
   desc: string;
-}[] = [
-  {
-    kategori: "Ekstrakurikuler",
-    title: "Ekstrakurikuler",
-    desc: "Pengembangan bakat dan minat siswa melalui berbagai klub seni dan olahraga.",
-  },
-  {
-    kategori: "Galeri Umum",
-    title: "Galeri Umum",
-    desc: "Melihat lebih dekat lingkungan belajar dan aktivitas harian di sekolah kami.",
-  },
-  {
-    kategori: "Perayaan",
-    title: "Perayaan",
-    desc: "Momen meriah perayaan hari besar nasional dan acara khusus sekolah.",
-  },
-  {
-    kategori: "Penghargaan",
-    title: "Penghargaan",
-    desc: "Bukti nyata dedikasi dan prestasi akademik maupun non-akademik siswa kami.",
-  },
-];
+  initialItems: Gallery[];
+  initialLastPage: number;
+}) {
+  const [items, setItems]       = useState<Gallery[]>(initialItems);
+  const [page, setPage]         = useState(1);
+  const [loading, setLoading]   = useState(false);
+  const hasMore = page < initialLastPage;
 
-export default function GaleriContent({ galleries = [] }: Props) {
-  // Pisahkan per kategori
-  const byKategori = SECTIONS.map((s) => ({
-    ...s,
-    items: (galleries ?? []).filter((g) => g.kategori === s.kategori),
-  }));
+  async function loadMore() {
+    setLoading(true);
+    try {
+      const nextPage = page + 1;
+      const url = `${API_URL}/galleries?kategori=${encodeURIComponent(kategori)}&page=${nextPage}`;
+      const res  = await fetch(url, { cache: "no-store" });
+      if (!res.ok) return;
+      const json: PaginatedResponse<Gallery> = await res.json();
+      setItems((prev) => [...prev, ...json.data]);
+      setPage(nextPage);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const hasAny = (galleries ?? []).length > 0;
+  if (items.length === 0) return null;
+
+  return (
+    <section className="mb-20">
+      <SectionHeader title={title} desc={desc} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {items.map((item) => <GalleryCard key={item.id} item={item} />)}
+      </div>
+      <LoadMoreButton onClick={loadMore} loading={loading} hasMore={hasMore} label="foto" />
+    </section>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
+interface SectionData {
+  kategori: Gallery["kategori"];
+  items: Gallery[];
+  lastPage: number;
+}
+
+interface Props {
+  sections: SectionData[];
+}
+
+export default function GaleriContent({ sections }: Props) {
+  const hasAny = sections.some((s) => s.items.length > 0);
 
   return (
     <>
-      {/* Hero Header */}
       <div className="max-w-3xl mb-16">
         <h2 className="text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
           Galeri Sekolah
@@ -111,26 +142,25 @@ export default function GaleriContent({ galleries = [] }: Props) {
           <span className="material-symbols-outlined text-7xl text-slate-300 dark:text-slate-600 mb-4">
             photo_library
           </span>
-          <p className="text-slate-500 dark:text-slate-400 text-lg font-medium">
-            Belum ada foto galeri.
-          </p>
+          <p className="text-slate-500 dark:text-slate-400 text-lg font-medium">Belum ada foto galeri.</p>
           <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
             Foto akan muncul setelah admin mengunggah melalui panel admin.
           </p>
         </div>
       )}
 
-      {byKategori.map((section) => {
-        if (section.items.length === 0) return null;
+      {sections.map((s) => {
+        const cfg = SECTIONS.find((c) => c.kategori === s.kategori);
+        if (!cfg) return null;
         return (
-          <section key={section.kategori} className="mb-20">
-            <SectionHeader title={section.title} desc={section.desc} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {section.items.map((item) => (
-                <GalleryCard key={item.id} item={item} />
-              ))}
-            </div>
-          </section>
+          <GaleriSection
+            key={s.kategori}
+            kategori={s.kategori}
+            title={cfg.title}
+            desc={cfg.desc}
+            initialItems={s.items}
+            initialLastPage={s.lastPage}
+          />
         );
       })}
     </>
