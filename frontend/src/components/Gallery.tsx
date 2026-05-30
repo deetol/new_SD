@@ -40,10 +40,10 @@ export default async function Gallery() {
         {/* Header */}
         <div className="mb-12">
           <p className="text-sm font-bold uppercase tracking-widest text-primary mb-2">
-            Beberapa Raihan Prestasi
+            Beberapa Informasi Dari Sekolah Kami
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white max-w-xl leading-tight">
-            Discover Our Top School Achievement on Competition
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white max-w-5xl leading-tight">
+            Find the best information about our school in the Extracurricular Activities, Gallery, Celebrations, and Awards sections.
           </h2>
         </div>
 
@@ -66,36 +66,31 @@ export default async function Gallery() {
                 <Link
                   key={item.id}
                   href={`/galeri/${item.id}`}
-                  className="group flex gap-5 py-6 first:pt-0 last:pb-0 hover:bg-slate-50 dark:hover:bg-slate-800/40 -mx-4 px-4 rounded-xl transition-colors"
+                  className="group flex gap-5 py-7 first:pt-0 last:pb-0 hover:bg-slate-50 dark:hover:bg-slate-800/40 -mx-4 px-4 rounded-xl transition-colors"
                 >
-                  {/* Thumbnail */}
-                  <div className="relative shrink-0 w-[120px] h-[80px] rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700">
+                  {/* Thumbnail — lebih besar seperti referensi */}
+                  <div className="relative shrink-0 w-[220px] h-[130px] rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700">
                     <Image
                       src={item.thumbnail_url || "https://ui-avatars.com/api/?name=Foto"}
                       alt={item.judul}
                       fill
-                      sizes="120px"
+                      sizes="220px"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
 
                   {/* Text */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        {item.kategori}
-                      </span>
-                      <span className="text-xs text-slate-400 dark:text-slate-500">
-                        {new Date(item.tanggal_kegiatan).toLocaleDateString("id-ID", {
-                          day: "numeric", month: "short", year: "numeric",
-                        })}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-base leading-snug line-clamp-3 group-hover:text-primary transition-colors mb-2">
                       {item.judul}
                     </h3>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
+                      {new Date(item.tanggal_kegiatan).toLocaleDateString("id-ID", {
+                        day: "numeric", month: "long", year: "numeric",
+                      })}
+                    </p>
                     {item.deskripsi && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                         {item.deskripsi}
                       </p>
                     )}
@@ -106,7 +101,7 @@ export default async function Gallery() {
           </div>
 
           {/* ── Kanan: stat prestasi ── */}
-          <div className="bg-accent-gold rounded-2xl p-8 text-white flex flex-col gap-6 sticky top-24">
+          <div className="bg-accent-gold rounded-2xl p-8 text-white flex flex-col gap-4 sticky top-10">
             <p className="text-xs font-bold uppercase tracking-widest text-white/70">
               Prestasi Siswa SDN Selok Awar-Awar 05
             </p>

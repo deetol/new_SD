@@ -12,7 +12,7 @@ module.exports = {
         primary: "#00b0ff",
         "background-light": "#f8f9ff",
         "background-dark": "#0b1c30",
-        "accent-gold": "#006e2f",
+        "accent-gold": "#0064f9ff",
       },
       fontFamily: {
         display: ["var(--font-lexend)", "sans-serif"],
