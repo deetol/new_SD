@@ -6,6 +6,7 @@ use App\Models\Ppdb;
 use Illuminate\Http\Request;
 use App\Http\Requests\PpdbStoreRequest;
 use App\Http\Requests\PpdbUpdateRequest;
+use App\Http\Resources\PpdbResource;
 use Illuminate\Http\JsonResponse;
 
 class PpdbController extends Controller
@@ -17,7 +18,7 @@ class PpdbController extends Controller
     {
         $ppdb = Ppdb::latest()->paginate(10);
 
-        return response()->json($ppdb);
+        return PpdbResource::collection($ppdb)->response();
     }
 
     /**
@@ -29,7 +30,7 @@ class PpdbController extends Controller
 
         $ppdb = Ppdb::create($validated);
 
-        return response()->json($ppdb, 201);
+        return (new PpdbResource($ppdb))->response()->setStatusCode(201);
     }
 
     /**
@@ -39,7 +40,7 @@ class PpdbController extends Controller
     {
         $ppdb->load('pendaftar');
 
-        return response()->json($ppdb);
+        return (new PpdbResource($ppdb))->response();
     }
 
     /**
@@ -51,7 +52,7 @@ class PpdbController extends Controller
 
         $ppdb->update($validated);
 
-        return response()->json($ppdb);
+        return (new PpdbResource($ppdb))->response();
     }
 
     /**
@@ -78,6 +79,6 @@ class PpdbController extends Controller
             return response()->json(['message' => 'Tidak ada PPDB yang sedang aktif.'], 404);
         }
 
-        return response()->json($ppdb);
+        return (new PpdbResource($ppdb))->response();
     }
 }

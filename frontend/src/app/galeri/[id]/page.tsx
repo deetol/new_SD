@@ -58,7 +58,11 @@ export default async function GaleriDetailPage({
     <>
       <Header />
       <main className="flex flex-1 justify-center py-8 px-4 lg:px-40">
-        <GaleriDetailContent gallery={gallery} related={related} />
+        <GaleriDetailContent
+          gallery={gallery}
+          related={related}
+          pageUrl={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/galeri/${gallery.id}`}
+        />
       </main>
       <Footer />
     </>
