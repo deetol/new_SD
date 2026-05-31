@@ -4,8 +4,6 @@ import { getStatistics, type Gallery } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
-// Stats will be generated dynamically based on backend data
-
 async function getFeaturedGalleries(): Promise<Gallery[]> {
   try {
     const res = await fetch(`${API_URL}/galleries`, {
@@ -21,17 +19,18 @@ async function getFeaturedGalleries(): Promise<Gallery[]> {
   }
 }
 
+const KATEGORI_CONFIG = [
+  { key: "ekstrakurikuler" as const, label: "Ekstrakurikuler", icon: "sports_soccer" },
+  { key: "galeri_umum"     as const, label: "Galeri Umum",     icon: "photo_library" },
+  { key: "perayaan"        as const, label: "Perayaan",         icon: "celebration"   },
+  { key: "penghargaan"     as const, label: "Penghargaan",      icon: "emoji_events"  },
+];
+
 export default async function Gallery() {
   const [featured, statsData] = await Promise.all([
     getFeaturedGalleries(),
-    getStatistics()
+    getStatistics(),
   ]);
-
-  const stats = [
-    { value: `${statsData?.prestasi?.internasional || 2}+`, label: "Prestasi Internasional" },
-    { value: `${statsData?.prestasi?.nasional || 5}+`, label: "Prestasi Nasional" },
-    { value: `${statsData?.prestasi?.provinsi || 12}+`, label: "Prestasi Provinsi dan Regional" },
-  ];
 
   return (
     <section className="py-24 bg-white dark:bg-background-dark/50">
@@ -68,7 +67,7 @@ export default async function Gallery() {
                   href={`/galeri/${item.id}`}
                   className="group flex gap-5 py-7 first:pt-0 last:pb-0 hover:bg-slate-50 dark:hover:bg-slate-800/40 -mx-4 px-4 rounded-xl transition-colors"
                 >
-                  {/* Thumbnail — lebih besar seperti referensi */}
+                  {/* Thumbnail */}
                   <div className="relative shrink-0 w-[220px] h-[130px] rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700">
                     <Image
                       src={item.thumbnail_url || "https://ui-avatars.com/api/?name=Foto"}
@@ -100,20 +99,35 @@ export default async function Gallery() {
             )}
           </div>
 
-          {/* ── Kanan: stat prestasi ── */}
-          <div className="bg-accent-gold rounded-2xl p-8 text-white flex flex-col gap-4 sticky top-10">
+          {/* ── Kanan: jumlah galeri per kategori (dinamis dari DB) ── */}
+          <div className="bg-accent-gold rounded-2xl p-8 text-white flex flex-col gap-5 sticky top-10">
             <p className="text-xs font-bold uppercase tracking-widest text-white/70">
-              Prestasi Siswa SDN Selok Awar-Awar 05
+              Galeri SDN Selok Awar-Awar 05
             </p>
-            {stats.map((s) => (
-              <div key={s.label} className="border-b border-white/20 pb-5 last:border-0 last:pb-0">
-                <p className="text-5xl font-black text-white leading-none mb-1">{s.value}</p>
-                <p className="text-sm text-white/80">{s.label}</p>
-              </div>
-            ))}
+
+            {KATEGORI_CONFIG.map((k) => {
+              const count = statsData?.galeri?.[k.key] ?? 0;
+              return (
+                <div
+                  key={k.key}
+                  className="border-b border-white/20 pb-4 last:border-0 last:pb-0 flex items-center gap-4"
+                >
+                  <div className="shrink-0 size-10 rounded-xl bg-white/15 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[20px] text-white">
+                      {k.icon}
+                    </span>
+                  </div>
+                  <p className="flex-1 text-sm text-white/90 leading-tight">{k.label}</p>
+                  <p className="text-3xl font-black text-white leading-none shrink-0">
+                    {count}
+                  </p>
+                </div>
+              );
+            })}
+
             <Link
               href="/galeri"
-              className="mt-2 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors"
+              className="mt-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors"
             >
               Selengkapnya
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

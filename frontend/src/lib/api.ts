@@ -239,6 +239,12 @@ export interface Statistics {
     nasional: number;
     provinsi: number;
   };
+  galeri: {
+    ekstrakurikuler: number;
+    galeri_umum: number;
+    perayaan: number;
+    penghargaan: number;
+  };
 }
 
 export async function getStatistics(): Promise<Statistics | null> {
