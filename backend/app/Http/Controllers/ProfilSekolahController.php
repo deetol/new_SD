@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProfilSekolahResource;
 use App\Http\Traits\HandlesImageUpload;
+use App\Http\Traits\SanitizesInput;
 use App\Models\ProfilSekolah;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class ProfilSekolahController extends Controller
 {
-    use HandlesImageUpload;
+    use HandlesImageUpload, SanitizesInput;
 
     /**
      * Validasi rules yang dipakai oleh store dan update.
@@ -67,6 +68,13 @@ class ProfilSekolahController extends Controller
     {
         $validated = $request->validate($this->rules());
 
+        // Sanitize HTML fields to prevent XSS
+        $validated = $this->sanitizeFields(
+            $validated,
+            ['sejarah', 'visi', 'misi', 'pengantar', 'visi_misi_pengantar'],
+            allowBasicFormatting: true
+        );
+
         if ($request->hasFile('logo')) {
             $validated['logo'] = $this->uploadImage($request->file('logo'), 'profil');
         } else {
@@ -100,6 +108,13 @@ class ProfilSekolahController extends Controller
     public function update(Request $request, ProfilSekolah $profilSekolah): JsonResponse
     {
         $validated = $request->validate($this->rules(isUpdate: true));
+
+        // Sanitize HTML fields to prevent XSS
+        $validated = $this->sanitizeFields(
+            $validated,
+            ['sejarah', 'visi', 'misi', 'pengantar', 'visi_misi_pengantar'],
+            allowBasicFormatting: true
+        );
 
         if ($request->hasFile('logo')) {
             // Hapus logo lama sebelum upload yang baru

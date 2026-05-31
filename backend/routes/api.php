@@ -15,7 +15,8 @@ use App\Http\Controllers\StatisticController;
 |--------------------------------------------------------------------------
 */
 Route::prefix('auth')->group(function () {
-    Route::post('login',  [AuthController::class, 'login']);
+    // Login dengan rate limiting: 5 attempts per minute
+    Route::post('login',  [AuthController::class, 'login'])->middleware('throttle:5,1');
 
     // logout & me butuh token
     Route::middleware('auth:sanctum')->group(function () {

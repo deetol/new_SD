@@ -17,7 +17,12 @@ trait HandlesImageUpload
      */
     protected function uploadImage(UploadedFile $file, string $folder): string
     {
-        return $file->store($folder, 'public');
+        // Generate secure random filename to prevent path traversal
+        $extension = $file->getClientOriginalExtension();
+        $filename = bin2hex(random_bytes(16)) . '.' . $extension;
+        
+        // Store with custom filename
+        return $file->storeAs($folder, $filename, 'public');
     }
 
     /**

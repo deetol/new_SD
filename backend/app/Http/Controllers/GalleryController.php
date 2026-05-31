@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Traits\HandlesImageUpload;
+use App\Http\Traits\SanitizesInput;
+use App\Http\Traits\LogsAdminActions;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
 use App\Http\Requests\GalleryStoreRequest;
@@ -12,7 +14,7 @@ use Illuminate\Http\JsonResponse;
 
 class GalleryController extends Controller
 {
-    use HandlesImageUpload;
+    use HandlesImageUpload, SanitizesInput, LogsAdminActions;
 
     public function index(Request $request): JsonResponse
     {
@@ -39,6 +41,9 @@ class GalleryController extends Controller
     public function store(GalleryStoreRequest $request): JsonResponse
     {
         $validated = $request->validated();
+
+        // Sanitize HTML fields to prevent XSS
+        $validated = $this->sanitizeFields($validated, ['deskripsi'], allowBasicFormatting: true);
 
         $validated['slug']      = $validated['slug'] ?? Gallery::generateSlug($validated['judul']);
         $validated['thumbnail'] = $this->uploadImage($request->file('thumbnail'), 'galleries');
@@ -73,6 +78,9 @@ class GalleryController extends Controller
     public function update(GalleryUpdateRequest $request, Gallery $gallery): JsonResponse
     {
         $validated = $request->validated();
+
+        // Sanitize HTML fields to prevent XSS
+        $validated = $this->sanitizeFields($validated, ['deskripsi'], allowBasicFormatting: true);
 
         if (isset($validated['judul']) && !isset($validated['slug'])) {
             $validated['slug'] = Gallery::generateSlug($validated['judul']);
@@ -114,11 +122,19 @@ class GalleryController extends Controller
 
         $gallery->update($validated);
 
+        $this->logAdminAction('updated', 'gallery', $gallery->id, additionalData: [
+            'judul' => $gallery->judul,
+            'kategori' => $gallery->kategori,
+        ]);
+
         return (new GalleryResource($gallery))->response();
     }
 
     public function destroy(Gallery $gallery): JsonResponse
     {
+        $galleryId = $gallery->id;
+        $galleryJudul = $gallery->judul;
+
         // Hapus thumbnail utama
         $this->deleteImage($gallery->thumbnail);
 
@@ -128,6 +144,10 @@ class GalleryController extends Controller
         }
 
         $gallery->delete();
+
+        $this->logAdminAction('deleted', 'gallery', $galleryId, additionalData: [
+            'judul' => $galleryJudul,
+        ]);
 
         return response()->json(['message' => 'Galeri berhasil dihapus.']);
     }

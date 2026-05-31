@@ -9,12 +9,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 
 use App\Http\Traits\HandlesImageUpload;
+use App\Http\Traits\SanitizesInput;
+use App\Http\Traits\LogsAdminActions;
 use App\Mail\PendaftarPpdbMail;
 use Illuminate\Support\Facades\Mail;
 
 class PendaftarPpdbController extends Controller
 {
-    use HandlesImageUpload;
+    use HandlesImageUpload, SanitizesInput, LogsAdminActions;
     /**
      * Tampilkan semua pendaftar (bisa filter by ppdb_id atau status).
      */
@@ -122,13 +124,13 @@ class PendaftarPpdbController extends Controller
             }
         }
 
-        // Generate nomor pendaftaran otomatis: PPDB-YYYY-XXXXX
-        // Retry jika terjadi collision (unique constraint di DB)
+        // Generate nomor pendaftaran otomatis: PPDB-YYYY-XXXXXXXXXX (10 hex chars)
+        // Menggunakan random_bytes untuk keamanan lebih baik
         $ppdb = Ppdb::findOrFail($validated['ppdb_id']);
         $maxAttempts = 10;
         $nomor = null;
         for ($i = 0; $i < $maxAttempts; $i++) {
-            $candidate = 'PPDB-' . $ppdb->tahun_ajaran . '-' . strtoupper(Str::random(5));
+            $candidate = 'PPDB-' . $ppdb->tahun_ajaran . '-' . strtoupper($this->generateSecureToken(10));
             if (!PendaftarPpdb::where('nomor_pendaftaran', $candidate)->exists()) {
                 $nomor = $candidate;
                 break;
@@ -204,7 +206,14 @@ class PendaftarPpdbController extends Controller
      */
     public function destroy(PendaftarPpdb $pendaftarPpdb): JsonResponse
     {
+        $pendaftarId = $pendaftarPpdb->id;
+        $pendaftarNama = $pendaftarPpdb->nama_lengkap;
+
         $pendaftarPpdb->delete();
+
+        $this->logAdminAction('deleted', 'pendaftar_ppdb', $pendaftarId, additionalData: [
+            'nama_lengkap' => $pendaftarNama,
+        ]);
 
         return response()->json(['message' => 'Data pendaftar berhasil dihapus.']);
     }
@@ -219,7 +228,17 @@ class PendaftarPpdbController extends Controller
             'catatan_admin'  => 'nullable|string',
         ]);
 
+        // Sanitize catatan_admin to prevent XSS
+        $validated = $this->sanitizeFields($validated, ['catatan_admin'], allowBasicFormatting: true);
+
+        $oldStatus = $pendaftarPpdb->status;
         $pendaftarPpdb->update($validated);
+
+        $this->logAdminAction('status_updated', 'pendaftar_ppdb', $pendaftarPpdb->id, additionalData: [
+            'nama_lengkap' => $pendaftarPpdb->nama_lengkap,
+            'old_status' => $oldStatus,
+            'new_status' => $validated['status'],
+        ]);
 
         return response()->json([
             'message'    => 'Status pendaftar berhasil diperbarui.',
